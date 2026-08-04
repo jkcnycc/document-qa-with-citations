@@ -1,0 +1,5 @@
+PyYAML>=6.0
+openai>=1.40          # OpenAI-compatible client; used for DeepSeek, OpenAI, etc.
+
+# Optional: only needed to index PDF files
+pypdf>=4.0

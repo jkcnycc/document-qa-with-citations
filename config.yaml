@@ -1,0 +1,29 @@
+# Everything tunable lives here. Swapping LLM providers is a config change,
+# not a code change - the client is plain OpenAI-compatible HTTP.
+
+documents:
+  path: docs
+  extensions: [".md", ".txt", ".pdf"]
+
+chunking:
+  max_chars: 900
+  overlap_chars: 150
+
+retrieval:
+  top_k: 4
+  # If the best-matching chunk scores below this, the question is refused
+  # before the LLM is ever called. Cheapest possible way to avoid a
+  # hallucinated answer: don't ask.
+  min_score: 3.0
+
+llm:
+  provider: openai_compatible   # or "stub" to run with no API key
+  base_url: https://api.deepseek.com
+  model: deepseek-v4-flash
+  api_key_env: DEEPSEEK_API_KEY
+  temperature: 0.0
+  max_tokens: 700
+  timeout_seconds: 60
+
+index:
+  path: .index/index.json
