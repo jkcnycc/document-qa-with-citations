@@ -5,7 +5,14 @@ it came from. When the documents don't contain the answer, the system says so
 instead of inventing one.
 
 Ships with a small sample corpus (3 Markdown files and a PDF) so it runs out of
-the box.
+the box. Usable as a CLI, as an HTTP API, or through the web interface in
+`ui/`.
+
+![Answer with sources](screenshots/05.png)
+
+Citation numbers in the answer point at the passages listed underneath — the UI
+shows the number the model actually cited rather than renumbering by list
+position, so `[2]` in the text is `[2]` in the sources.
 
 ---
 
@@ -44,6 +51,33 @@ No API key? Everything except the natural-language generation still runs:
 ```bash
 python ask.py "How long do I have to request a refund?" --provider stub
 ```
+
+### As an API
+
+```bash
+pip install fastapi "uvicorn[standard]"
+uvicorn api:app --port 8000
+```
+
+`POST /api/ask` with `{"question": "..."}` returns the answer, the passages it
+cited, and — when it refuses — which gate stopped it and whether the model was
+called at all. `api.py` is a thin wrapper: nothing in `src/` changes, and the
+index and retriever are built once at startup rather than per request.
+
+### As a web app
+
+```bash
+cd ui
+npm install
+npm run dev
+```
+
+React + TypeScript + Tailwind, talking to the API above. Vite proxies `/api`
+to port 8000, so there is no CORS setup.
+
+A refusal is not an error state — it says which gate fired and why:
+
+![A refused question](screenshots/06.png)
 
 ---
 
@@ -183,7 +217,8 @@ matches through to gate 2 and costs tokens.
 
 ```
 ingest.py           build the index from docs/
-ask.py              ask a question
+ask.py              ask a question from the command line
+api.py              FastAPI wrapper - same pipeline over HTTP
 config.yaml         documents, chunking, retrieval, provider
 docs/               sample corpus (3 .md + 1 .pdf)
 src/
@@ -193,8 +228,16 @@ src/
   index.py          plain-JSON index, diffable and inspectable
   llm.py            OpenAI-compatible client + offline stub
   answer.py         prompt, the three gates, citation mapping
+ui/
+  src/App.tsx       question form, request state, error handling
+  src/AnswerCard.tsx  answer, sources, retrieved passages
+  src/types.ts      the response shape, declared once
 tests/              25 unit tests, no network required
 ```
+
+The three entry points share one pipeline. `ask.py`, `api.py` and the UI all
+call the same `answer_question`, so a change to a gate applies everywhere and
+there is no second implementation to keep in sync.
 
 ```bash
 python -m unittest discover -s tests -t . -v
