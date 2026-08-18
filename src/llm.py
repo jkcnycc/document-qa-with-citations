@@ -11,6 +11,7 @@ import logging
 import re
 from typing import List, Protocol
 
+from . import config as config_module
 from .config import LLMConfig
 
 log = logging.getLogger(__name__)
@@ -32,8 +33,10 @@ class OpenAICompatibleClient:
     def __init__(self, config: LLMConfig) -> None:
         if not config.api_key:
             raise LLMError(
-                f"No API key found in environment variable {config.api_key_env}. "
-                'Set it, or run with provider "stub" to try the pipeline offline.'
+                f"No API key found for {config.api_key_env}. Looked in two "
+                f"places: the process environment, and the .env file at "
+                f"{config_module.ENV_FILE}. Put it in .env (copy .env.example), "
+                f'or run with provider "stub" to try the pipeline offline.'
             )
         self._config = config
         self.name = f"{config.model} @ {config.base_url}"

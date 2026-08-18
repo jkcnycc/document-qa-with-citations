@@ -42,9 +42,17 @@ shown to the user.
 
 ```bash
 pip install -r requirements.txt
+cp .env.example .env        # then put your key in it
 python ingest.py
 python ask.py "How long do I have to request a refund on a monthly plan?"
 ```
+
+The key is read from `.env` at the repo root, which is gitignored. An
+environment variable of the same name still works and **takes precedence** over
+the file, so a one-off `DEEPSEEK_API_KEY=... python ask.py` overrides it. That
+precedence has a sharp edge worth knowing: a variable left exported in your
+shell silently beats an edited `.env`, so if changes to the file seem to do
+nothing, unset the variable.
 
 No API key? Everything except the natural-language generation still runs:
 
@@ -176,7 +184,9 @@ llm:
   api_key_env: OPENAI_API_KEY
 ```
 
-No code changes, no vendor lock-in.
+No code changes, no vendor lock-in. `api_key_env` names the variable; put the
+value in `.env` under that name, or export it. The value is never written into
+`config.yaml`, which is committed.
 
 ---
 

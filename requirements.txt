@@ -1,5 +1,6 @@
 PyYAML>=6.0
 openai>=1.40          # OpenAI-compatible client; used for DeepSeek, OpenAI, etc.
+python-dotenv>=1.0    # reads .env so the key never lives in a shell profile
 
 # Optional: only needed to index PDF files
 pypdf>=4.0
